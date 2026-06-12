@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Cloud Bus Pass System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+```
+<div class="container">
+
+    <h1>🚌 Smart Cloud Bus Pass System</h1>
+
+    <input type="text" id="name" placeholder="Enter Name">
+
+    <input type="number" id="age" placeholder="Enter Age">
+
+    <input type="file" id="photo" accept="image/*">
+
+    <input type="text" id="source" placeholder="Source">
+
+    <input type="text" id="destination" placeholder="Destination">
+
+    <button onclick="generatePass()">Generate Pass</button>
+    
+
+    <button onclick="downloadPass()">📄 Download Pass PDF</button>
+
+
+    <div id="pass"></div>
+
+</div>
+```
+
+<script>
+function generatePass() {
+
+    let name = document.getElementById("name").value;
+    let age = document.getElementById("age").value;
+    let photo = document.getElementById("photo").files[0];
+    let source = document.getElementById("source").value;
+    let destination = document.getElementById("destination").value;
+
+    if (!name || !age || !source || !destination) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    if (!photo) {
+        alert("Please upload a photo");
+        return;
+    }
+
+    document.getElementById("pass").innerHTML =
+    "<h3>⏳ Generating Your Smart Bus Pass...</h3>";
+
+    let reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        let passId = "PASS" + Math.floor(Math.random() * 100000);
+        let verificationId ="VER-" + Math.floor(Math.random() * 10000);
+
+        let issueDate = new Date();
+
+        let expiryDate = new Date();
+        expiryDate.setDate(issueDate.getDate() + 30);
+
+        issueDate = issueDate.toLocaleDateString();
+        expiryDate = expiryDate.toLocaleDateString();
+
+        setTimeout(() => {
+
+            document.getElementById("pass").innerHTML = `
+                <hr>
+
+                <h3>🚌 Digital Bus Pass</h3>
+
+                <img src="${e.target.result}"
+                     width="90"
+                     height="90"
+                     style="display:block;
+                            margin:auto;
+                            border-radius:10px;
+                            object-fit:cover;">
+
+                <p><b>Pass ID:</b> ${passId}</p>
+
+                <p><b>Verification ID:</b> ${verificationId}</p>
+
+                <p><b>Name:</b> ${name}</p>
+
+                <p><b>Age:</b> ${age}</p>
+
+                <p><b>Route:</b> ${source} → ${destination}</p>
+
+                <p><b>Pass Type:</b> Monthly Student Pass</p>
+
+                <p><b>Issue Date:</b> ${issueDate}</p>
+
+                <p><b>Expiry Date:</b> ${expiryDate}</p>
+
+                <p><b>Validity:</b> 30 Days</p>
+
+                <p><b>Amount Paid:</b> ₹500</p>
+
+                <p>
+<b>Status:</b>
+<span style="background:#d4edda;
+padding:5px 10px;
+border-radius:10px;
+color:green;">
+ACTIVE
+</span>
+</p>
+<p style="text-align:center; margin-top:15px;">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${passId}-${verificationId}">
+</p>
+
+<p style="text-align:center;">
+    <b>📱 Scan to Verify Pass</b>
+</p>
+
+            `;
+
+        }, 1500);
+
+    };
+
+    reader.readAsDataURL(photo);
+    
+}
+function downloadPass() {
+
+    let passContent = document.getElementById("pass").innerHTML;
+
+    let newWindow = window.open("", "", "width=800,height=600");
+
+    newWindow.document.write(`
+        <html>
+        <head>
+            <title>Bus Pass</title>
+        </head>
+        <body>
+            ${passContent}
+        </body>
+        </html>
+    `);
+
+    newWindow.document.close();
+    newWindow.print();
+}
+</script>
+
+</body>
+</html>
